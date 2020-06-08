@@ -51,6 +51,7 @@ class GetPrice:
 
 
     def get_json(self,timesort, timesort2):
+        sql_data=[]
         if timesort <= timesort2 - 300:
             print('程序已经爬取5分钟之内的全部数据，已暂时停止，等待下次爬取...')
             return
@@ -72,15 +73,15 @@ class GetPrice:
                     article_url = json_data.get('article_url')
                     article_mall = json_data.get('article_mall')
                     article_timesort = json_data.get('timesort')
-                    sql_data = (article_date, article_title, article_price,article_url,article_mall,article_timesort)
+                    sql_data = [article_date, article_title, article_price,article_url,article_mall,article_timesort]
                     sql = 'insert into ' +self.db_table+ ' values(%s, %s, %s, %s, %s, %s)'
                     self.cursor.execute(sql, sql_data)
                     self.db_connect.commit()
                     print(sql_data)
                     for key in self.Monitor_Key:
                         if sql_data[1].find(key) > -1:
-                            with open('test.txt','a+') as f:
-                                f.write(str(sql_data)+'\n')
+                            #with open('test.txt','a+') as f:
+                                #f.write(str(sql_data)+'\n')
                             self.new_Not_M.Select_Method(str(sql_data))
                             break
                 self.get_json(sql_data[5], timesort2)
@@ -101,7 +102,7 @@ def main():
             m1.get_json(int(time.time()), int(time.time()))
             time.sleep(Global_Config.Cycle_time)
     except Exception as f:
-        new_Not_M.Select_Method("程序由于意外已停止运行,报错原因为{}".format(f))
+        new_Not_M.Select_Method("程序由于意外已停止运行,报错原因为{}，{},{}".format(f,f.__traceback__.tb_lineno,f.__traceback__.tb_frame.f_globals['__file__']))
         print(f)
 
 
